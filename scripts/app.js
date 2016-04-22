@@ -6,6 +6,38 @@ $( document ).ready(function() {
    * FUNCTIONS
    ***************************/
 
+  function weatherCodeIcon(code){
+    var html = '';
+    html += '<i class="wi ';
+    switch(code){
+      case "11": // showers
+        html += 'wi-rain';
+        break;
+      case "26": // cloudy
+        html += 'wi-cloud';
+        break;
+      case "28": // mostly cloudy(day)
+        html += 'wi-cloudy';
+        break;
+      case "30": // partly cloudy(day)
+        html += 'wi-day-cloudy';
+        break;
+      case "32": // sunny
+        html += 'wi-day-sunny';
+        break;
+      case "34": // mostly sunny
+        html += 'wi-day-sunny-overcast';
+        break;
+      case "39": // scattered showers
+        html += 'wi-showers';
+        break;
+      default:
+        html += 'invisible';
+    }
+    html += '"></i>';
+    return html;
+  }
+
   function idGenerator() {
     // Math.random should be unique because of its seeding algorithm.
     // Convert it to base 36 (numbers + letters), and grab the first 9 characters
@@ -168,15 +200,18 @@ $( document ).ready(function() {
   }
 
   function addWeather(){
-    $.getJSON( "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys", function( data ) {
+    $.getJSON( "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D9807%20&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys", function( data ) {
       var forecasts = data.query.results.channel.item.forecast;
-      var forecastDate, forecastMonth;
+      var forecastDate, forecastMonth, weatherIcon;
 
       for (var i = 0; i < forecasts.length; i++) {
         forecastDate = parseInt(forecasts[i].date.slice(0,2), 10);
         forecastMonth = getMonthNumber(forecasts[i].date.slice(3,6));
 
-        $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"]').find('.weather').html(forecasts[i].text);
+        weatherIcon = weatherCodeIcon(forecasts[i].code);
+
+
+        $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"]').find('.weather').html(forecasts[i].text +'<span>'+ weatherIcon + '</span>');
       }
 
     });

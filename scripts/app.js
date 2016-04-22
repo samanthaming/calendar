@@ -1,3 +1,7 @@
+
+
+
+
 $( document ).ready(function() {
 
   /***************************
@@ -9,6 +13,10 @@ $( document ).ready(function() {
     // Convert it to base 36 (numbers + letters), and grab the first 9 characters
     // after the decimal.
     return '_' + Math.random().toString(36).substr(2, 9);
+  }
+
+  function pluralize(number, singular, plural) {
+    return number  === 1 ? singular : plural;
   }
 
   function GetMonthName(monthNumber) {
@@ -148,6 +156,8 @@ $( document ).ready(function() {
       var date = $this.find('input[name="date"]').val();
       var month = $this.find('input[name="month"]').val();
       var type = $this.find('select[name="type"]').val();
+      var thisEventNum = $('.calendar-column[data-date="' + date + '"]').find('.event-num');
+      var currentNum = parseInt(thisEventNum.text()) || 0;
 
       var formData = {
         id: idGenerator(),
@@ -157,9 +167,12 @@ $( document ).ready(function() {
         title: title
       };
 
-      events.push(formData);
-      $this.find('input[name="title"]').val('');
+      events.push(formData); // add data to array
+      $this.find('input[name="title"]').val(''); // clear form
       $('.event-list').append('<li>'+title+'</li>');
 
+      // Update calendar to show event count
+      thisEventNum.html('');
+      thisEventNum.html('<span>' + (currentNum + 1) + pluralize(currentNum + 1, " event", " events") +'</span>');
     });
 });

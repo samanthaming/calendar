@@ -17,12 +17,12 @@
   float: left;
   border:1px solid teal;
   text-align: right;
-  height:70px;
+  height:90px;
   padding:5px;
 }
 
 .calendar-column.current{
-  background-color: tomato;
+  background-color: #67D5B5;
 }
 .calendar-header h3{
   text-align: center;
@@ -36,6 +36,12 @@
 .event-num{
   text-align: center;
   font-style: italic;
+  /*radius: 50%;*/
+}
+.event-num span{
+  background-color: #FFBC42;
+  padding:5px 15px;
+  border-radius: 20px;
 }
 /* --------------------------------------
    Media Queries

@@ -1,4 +1,6 @@
+
 $( document ).ready(function() {
+
 
   /***************************
    * FUNCTIONS
@@ -21,6 +23,12 @@ $( document ).ready(function() {
     return months[monthNumber];
   }
 
+  function getMonthNumber(monthName){
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return months.indexOf(monthName);
+  }
+
   function dayIndex(month){
     var first_day = new Date(GetMonthName(month) + ' ' + 1 + ' ' + year).toDateString().substring(0, 3);
     return day_name.indexOf(first_day);
@@ -30,21 +38,29 @@ $( document ).ready(function() {
     return new Date(year, month + 1, 0).getDate();
   }
 
-  function $thisCalendarColumn(calendarContent, counter, thisMonth){
+  function $thisCalendarColumn(calendarContent, counter, month, events){
     var d = new Date();
     var currentDate = d.getDate();
     var currentMonth = new Date().getMonth();
     var html = "";
 
+    var count = eventCount(events,month, counter);
+
     html += '<div class="calendar-column';
-    if (counter == currentDate && currentMonth == thisMonth) {
+    if (counter == currentDate && currentMonth == month) {
       html += ' current';
     }
     html += '"';
-    html += 'data-date="'+ counter +'" data-month="'+ thisMonth+'">';
-    html +=  '<span>'+ counter +'</span>';
-    html +=  '<div class="event-num"></div>';
-    html +=  "</div>";
+    html += 'data-date="'+ counter +'" data-month="'+ month+'">';
+    html += '<span>'+ counter +'</span>';
+    html += '<div class="event-num">';
+
+    if(eventCount > 0){
+      html += "3";
+    }
+    html +=  '</div>';
+    html += '<div class="weather"></div>';
+    html +=  '</div>';
 
     return calendarContent.append(html);
   }
@@ -53,6 +69,7 @@ $( document ).ready(function() {
     return calendarContent.append('<div class="calendar-column calendar-column-muted" data-date="'+ counter +'" data-month="'+ month +'">' +
       '<span>'+ counter +'</span>' +
       '<div class="event-num"></div>' +
+      '<div class="weather"></div>' +
       "</div>");
   }
 
@@ -62,18 +79,18 @@ $( document ).ready(function() {
     return prevLastDate - day_index + 1;
   }
 
-  function calendar_end(day_index, row){
+  function calendarEnd(day_index, row){
     // default, show 6 weeks
     row = typeof row !== 'undefined' ? row : 6;
     return day_index === 0 ? 42 : row * 7 - 7;
   }
 
-  function calendar(day_index, last_date, year, month){
+  function calendar(day_index, last_date, year, month, events){
     var counter = 0;
     var $calendarContent = $('.calendar-content');
     var prevCounter = previousCounter(year, month, day_index);
     var aheadCounter = 1;
-    var end_loop = calendar_end(day_index);
+    var end_loop = calendarEnd(day_index);
 
     $calendarContent.html(""); // clear calendar
 
@@ -82,7 +99,7 @@ $( document ).ready(function() {
 
       if(ir == day_index || counter > 0){
         counter++;
-        $thisCalendarColumn($calendarContent, counter, month);
+        $thisCalendarColumn($calendarContent, counter, month, events);
       }else{
         $notThisCalendarColumn($calendarContent, prevCounter, month - 1);
         prevCounter++;
@@ -94,7 +111,7 @@ $( document ).ready(function() {
       for(var nr = 0; nr < 7; nr++ ){
         counter++;
         if(counter <= last_date){
-          $thisCalendarColumn($calendarContent, counter, month);
+          $thisCalendarColumn($calendarContent, counter, month, events);
         }else{
           $notThisCalendarColumn($calendarContent, aheadCounter, month + 1);
           aheadCounter++;
@@ -109,23 +126,60 @@ $( document ).ready(function() {
 
   function $eventLine(title, type, id){
     html = '<li data-id="'+ id +'">';
-    html += title;
+
     switch(type){
-      case "Appointments":
+      case "Appointment":
         html += '<span class="event-type event-type-appt">';
         break;
-      case "Tasks":
+      case "Task":
         html += '<span class="event-type event-type-task">';
         break;
       default:
         html += '<span class="event-type event-type-meet">';
     }
     html += type + '</span>';
+    html += title;
     html += '<span class="remove-event">';
     html += '<i class="fa fa-times" aria-hidden="true"></i>';
     html += '</span>';
     html += '</li>';
     return html;
+  }
+
+  function eventCount(events, month, date){
+    return _.where(events, {month: parseInt(month), date: parseInt(date)}).length;
+  }
+
+  function addEventCount(){
+    // Loop through calendar-content
+    var month, date, count;
+    $('.calendar-content').find('.calendar-column').each(function(index, element) {
+      $this = $(this);
+      month = $this.data('month');
+      date  = $this.data('date');
+      count = eventCount(events, month, date);
+      if (count > 0) {
+        $this.find('.event-num').html('<span>'+
+          count +
+          pluralize(count, ' event', ' events') +
+          '</span');
+      }
+    });
+  }
+
+  function addWeather(){
+    $.getJSON( "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys", function( data ) {
+      var forecasts = data.query.results.channel.item.forecast;
+      var forecastDate, forecastMonth;
+
+      for (var i = 0; i < forecasts.length; i++) {
+        forecastDate = parseInt(forecasts[i].date.slice(0,2), 10);
+        forecastMonth = getMonthNumber(forecasts[i].date.slice(3,6));
+
+        $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"]').find('.weather').html(forecasts[i].text);
+      }
+
+    });
   }
   /***************************
    * VARIABLES
@@ -144,7 +198,8 @@ $( document ).ready(function() {
      ***************************/
 
     $calendarTitle(month, year);
-    calendar(day_index, last_date, year, month);
+    calendar(day_index, last_date, year, month, events);
+    addWeather();
 
     $('#next-month').on('click', function(e) {
       e.preventDefault();
@@ -155,6 +210,8 @@ $( document ).ready(function() {
         $calendarTitle(month, year);
         calendar(day_index, last_date, year, month);
       }
+      addEventCount();
+      addWeather();
     });
 
     $('#prev-month').on('click', function(e) {
@@ -166,7 +223,10 @@ $( document ).ready(function() {
         $calendarTitle(month, year);
         calendar(day_index, last_date, year, month);
       }
+      addEventCount();
+      addWeather();
     });
+
 
     $('.calendar-content').on('click', '.calendar-column', function(){
       var $this = $(this);
@@ -188,6 +248,7 @@ $( document ).ready(function() {
         html = $eventLine(current_events[i].title, current_events[i].type, current_events[i].id);
         $eventList.append(html);
       }
+
     });
 
     $('#create-event').on('submit', function(e) {
@@ -211,10 +272,9 @@ $( document ).ready(function() {
       events.push(formData); // add data to array
       $this.find('input[name="title"]').val(''); // clear form
       html = $eventLine(title, type, id);
-      $('.event-list').append(html);
+      $('.event-list').prepend(html);
 
-      thisEventNum.html('');
-      thisEventNum.html('<span>' + (currentNum + 1) + pluralize(currentNum + 1, " event", " events") +'</span>');
+      addEventCount();
     });
 
     // Remove Event
@@ -228,6 +288,12 @@ $( document ).ready(function() {
         });
 
         events = _.without(events, _.findWhere(events, {id: id})); // remove event
+
+        addEventCount();
     });
+
+
+
+
 
 });

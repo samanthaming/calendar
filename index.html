@@ -14,16 +14,14 @@
     <script src="scripts/app.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container-fluid">
 
     <!-- Calendar -->
     <div class="calendar">
       <div class="calendar-header">
-        <div class="row">
-          <button type="button" id="prev-month" class="btn btn-default pull-left btn-month">Previous</button>
-          <button type="button" id="next-month" class="btn btn-default pull-right btn-month">Next</button>
+          <button type="button" id="prev-month" class="btn-month"><i class="fa fa-chevron-left" aria-hidden="true"></i></button>
           <h3 class="calendar-header-title"></h3>
-        </div>
+          <button type="button" id="next-month" class="btn-month"><i class="fa fa-chevron-right" aria-hidden="true"></i></button>
       </div>
 
       <div class="calendar-day-title">
@@ -73,9 +71,9 @@
           </div>
           <div class="form-group">
             <select class="form-control" name="type">
-              <option value="Meetings">Meetings</option>
-              <option value="Appointments">Appointments</option>
-              <option value="Tasks">Tasks</option>
+              <option value="Meeting">Meeting</option>
+              <option value="Appointment">Appointment</option>
+              <option value="Task">Task</option>
             </select>
           </div>
           <div class="text-right">

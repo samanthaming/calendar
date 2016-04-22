@@ -9,6 +9,7 @@ body {
     font-family: 'Open Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizelegibility;
+    background-color: #CCCCCC;
 }
 
 img {
@@ -18,14 +19,24 @@ img {
 /* --------------------------------------
    BOOTSTRAP OVERRIDE
    -------------------------------------- */
-
+ .modal-header {
+     background-color: #E66B6B;
+     color: white;
+     border-top-left-radius: 6px;
+     border-top-right-radius: 6px;
+ }
  .modal-title{
    font-size: 20px;
  }
-
+.modal-body{
+  max-height: 50vh;
+  overflow: auto;
+}
 .modal-footer{
   border-top: none;
   text-align: left;
+  border-top: 2px solid #e0e0e0;
+  background-color: whiteSmoke;
 }
 
 label{
@@ -35,18 +46,30 @@ label{
 /* --------------------------------------
    STYLES
    -------------------------------------- */
- .calendar-header h3{
-   text-align: center;
-   margin-bottom: 25px;
-   font-size:36px;
- }
-
+.calendar{
+  margin: 20px;
+}
+.calendar-header{
+  display:flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #E66B6B;
+}
+.calendar-header h3{
+  text-align: center;
+  margin-bottom: 25px;
+  font-size:36px;
+  color:white;
+}
 .calendar-row-title .calendar-column{
   height:50px;
   line-height:50px;
   font-weight: bold;
   padding:0;
   padding-right: 5px;
+  color:#E66B6B;
+  text-align: center;
+  background-color:#eee;
 }
 .calendar-content:after {
   content: '';
@@ -56,52 +79,70 @@ label{
 .calendar-column{
   width: calc((100% / 7));
   float: left;
-  border:1px solid #379392;
+  background-color: white;
   text-align: right;
   height:100px;
-  padding:5px;
+  padding:10px 10px 0 0;
+  font-size: 16px;
 }
-
+.calendar-column .weather{
+  font-size: 12px;
+  text-align: center;
+  margin-top: 15px;
+  color:#9999bd;
+  font-style: italic;
+}
 .calendar-column.current{
   background-color: #d6ecfa;
 }
+
 .calendar-column.current span{
   font-weight: bold;;
 }
-
 .calendar-column.calendar-column-muted{
-  background-color: #eee ;
   color:#a3a1a1;
 }
 .calendar-content .calendar-column:hover{
   background-color: #67D5B5;
   cursor:pointer;
+  color:white;
+}
+.calendar-content .calendar-column:hover .weather{
+  color: white;
 }
 
 .event-num{
   text-align: center;
-  font-style: italic;
-  /*radius: 50%;*/
+  margin-top: 8%;
+  color:white;
 }
-
 .event-num span{
   background-color: #FFBC42;
   padding:5px 15px;
   border-radius: 20px;
 }
-
+.event-list{
+  list-style-type: none;
+  padding:0
+}
+.event-list li:first-child{
+  margin-top: 20px;
+}
 .event-list li{
   font-size: 16px;
   margin-bottom: 18px;
+  padding:10px;
+  border-radius: 2px;
+  border: 1px solid #b2dfdb;
+  background-color: #eef8f7;
 }
 .event-type{
   font-size: 14px;
   padding: 1px 9px;
   border-radius: 20px;
-  margin-left: 8px;
+  margin-right: 15px;
   color: white;
 }
-
 .event-type-meet{
   background-color: #6C49B8;
 }
@@ -115,9 +156,25 @@ label{
 .remove-event{
   color:silver;
   margin-left: 8px;
+  float:right
 }
 
 .remove-event:hover{
   color:grey;
   cursor: pointer;
+}
+
+.btn-month{
+  border: 2px solid white;
+  width:50px;
+  height:50px;
+  border-radius: 50%;
+  background-color: white;
+  color:silver;
+  outline: none;
+}
+.btn-month:hover, .btn-month:active{
+  background-color: white;
+  color:#00b9f1;
+  border:2px solid #00b9f1;
 }

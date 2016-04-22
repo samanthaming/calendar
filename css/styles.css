@@ -1,0 +1,32 @@
+/*
+
+Custom CSS
+=============
+
+/* --------------------------------------
+   Layout
+   -------------------------------------- */
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+}
+
+img {
+    max-width: 100%;
+}
+
+ul.unstyled {
+    list-style: none;
+    padding: 0;
+}
+
+a {
+    color: #49166d;
+}
+
+    a:hover {
+        color: #111;
+    }

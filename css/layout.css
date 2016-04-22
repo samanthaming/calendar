@@ -1,0 +1,35 @@
+﻿@charset "UTF-8";
+/* CSS Document */
+
+
+
+/* --------------------------------------
+   CONTENT PAGE
+   -------------------------------------- */
+
+.calendar-row{
+
+}
+
+.calendar-row:after {
+   content: ".";
+   visibility: hidden;
+   display: block;
+   height: 0;
+   clear: both;
+}
+.calendar-column{
+  width: 14%;
+  float: left;
+  border:1px solid teal;
+  text-align: right;
+  height:70px;
+}
+
+.calendar-header h3{
+  text-align: center;
+}
+
+/* --------------------------------------
+   Media Queries
+   -------------------------------------- */

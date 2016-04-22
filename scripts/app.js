@@ -196,6 +196,8 @@ $( document ).ready(function() {
           count +
           pluralize(count, ' event', ' events') +
           '</span');
+      }else{
+        $this.find('.event-num').html('');
       }
     });
   }

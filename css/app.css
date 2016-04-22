@@ -1,0 +1,123 @@
+﻿@charset "UTF-8";
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+
+/* --------------------------------------
+   BASE
+   -------------------------------------- */
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizelegibility;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* --------------------------------------
+   BOOTSTRAP OVERRIDE
+   -------------------------------------- */
+
+ .modal-title{
+   font-size: 20px;
+ }
+
+.modal-footer{
+  border-top: none;
+  text-align: left;
+}
+
+label{
+  font-weight: normal;
+}
+
+/* --------------------------------------
+   STYLES
+   -------------------------------------- */
+ .calendar-header h3{
+   text-align: center;
+   margin-bottom: 25px;
+   font-size:36px;
+ }
+
+.calendar-row-title .calendar-column{
+  height:50px;
+  line-height:50px;
+  font-weight: bold;
+  padding:0;
+  padding-right: 5px;
+}
+.calendar-content:after {
+  content: '';
+  display: block;
+  clear: both;
+}
+.calendar-column{
+  width: calc((100% / 7));
+  float: left;
+  border:1px solid #379392;
+  text-align: right;
+  height:100px;
+  padding:5px;
+}
+
+.calendar-column.current{
+  background-color: #d6ecfa;
+}
+.calendar-column.current span{
+  font-weight: bold;;
+}
+
+.calendar-column.calendar-column-muted{
+  background-color: #eee ;
+  color:#a3a1a1;
+}
+.calendar-content .calendar-column:hover{
+  background-color: #67D5B5;
+  cursor:pointer;
+}
+
+.event-num{
+  text-align: center;
+  font-style: italic;
+  /*radius: 50%;*/
+}
+
+.event-num span{
+  background-color: #FFBC42;
+  padding:5px 15px;
+  border-radius: 20px;
+}
+
+.event-list li{
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.event-type{
+  font-size: 14px;
+  padding: 1px 9px;
+  border-radius: 20px;
+  margin-left: 8px;
+  color: white;
+}
+
+.event-type-meet{
+  background-color: #6C49B8;
+}
+.event-type-appt{
+  background-color: #f9320c;
+}
+.event-type-task{
+  background-color: #00b9f1;
+}
+
+.remove-event{
+  color:silver;
+  margin-left: 8px;
+}
+
+.remove-event:hover{
+  color:grey;
+  cursor: pointer;
+}

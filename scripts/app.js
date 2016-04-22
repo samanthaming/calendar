@@ -1,7 +1,3 @@
-
-
-
-
 $( document ).ready(function() {
 
   /***************************
@@ -38,61 +34,81 @@ $( document ).ready(function() {
     var d = new Date();
     var currentDate = d.getDate();
     var currentMonth = new Date().getMonth();
+    var html = "";
 
+    html += '<div class="calendar-column';
     if (counter == currentDate && currentMonth == thisMonth) {
-      return calendarContent.append('<div class="calendar-column current" data-month="' +
-        thisMonth + '">' +
-        counter +
-        "</div>");
-    } else {
-      return calendarContent.append('<div class="calendar-column" data-date="'+counter+'" data-month="'+ thisMonth+'">' +
-        '<span>'+ counter +'</span>' +
-        '<div class="event-num"></div>' +
-        "</div>");
+      html += ' current';
     }
+    html += '"';
+    html += 'data-date="'+ counter +'" data-month="'+ thisMonth+'">';
+    html +=  '<span>'+ counter +'</span>';
+    html +=  '<div class="event-num"></div>';
+    html +=  "</div>";
+
+    return calendarContent.append(html);
   }
 
-  function $notThisCalendarColumn(calendarContent, counter){
-    return calendarContent.append('<div class="calendar-column">' + '<span class="invisible">0</span>' + "</div>");
+  function $notThisCalendarColumn(calendarContent, counter, month){
+    return calendarContent.append('<div class="calendar-column calendar-column-muted" data-date="'+ counter +'" data-month="'+ month +'">' +
+      '<span>'+ counter +'</span>' +
+      '<div class="event-num"></div>' +
+      "</div>");
   }
 
-  function calendar(day_index, last_date, thisMonth){
+  function previousCounter(year, month, day_index){
+    var prevMonth = month - 1;
+    var prevLastDate = lastDate(year, prevMonth);
+    return prevLastDate - day_index + 1;
+  }
+
+  function calendar_end(day_index, row){
+    // default, show 6 weeks
+    row = typeof row !== 'undefined' ? row : 6;
+    return day_index === 0 ? 42 : row * 7 - 7;
+  }
+
+  function calendar(day_index, last_date, year, month){
     var counter = 0;
     var $calendarContent = $('.calendar-content');
+    var prevCounter = previousCounter(year, month, day_index);
+    var aheadCounter = 1;
+    var end_loop = calendar_end(day_index);
 
-    // clear calendar
-    $calendarContent.html("");
+    $calendarContent.html(""); // clear calendar
 
     // First row
     for(var ir = 0; ir < 7; ir++ ){
 
       if(ir == day_index || counter > 0){
         counter++;
-        $thisCalendarColumn($calendarContent, counter, thisMonth);
+        $thisCalendarColumn($calendarContent, counter, month);
       }else{
-        $notThisCalendarColumn($calendarContent, counter);
+        $notThisCalendarColumn($calendarContent, prevCounter, month - 1);
+        prevCounter++;
       }
     }
 
     // Rest of the row
-    while (counter < last_date) {
+    while (counter < end_loop ) {
       for(var nr = 0; nr < 7; nr++ ){
         counter++;
         if(counter <= last_date){
-          $thisCalendarColumn($calendarContent, counter, thisMonth);
+          $thisCalendarColumn($calendarContent, counter, month);
         }else{
-          $notThisCalendarColumn($calendarContent, counter);
+          $notThisCalendarColumn($calendarContent, aheadCounter, month + 1);
+          aheadCounter++;
         }
       }
     }
   }
 
-  function calendarTitle(month, year){
+  function $calendarTitle(month, year){
     $('.calendar-header-title').html(GetMonthName(month) + " " + year);
   }
 
-  function $eventLine(title, type){
-    html = '<li>';
+  function $eventLine(title, type, id){
+    html = '<li data-id="'+ id +'">';
     html += title;
     switch(type){
       case "Appointments":
@@ -105,6 +121,9 @@ $( document ).ready(function() {
         html += '<span class="event-type event-type-meet">';
     }
     html += type + '</span>';
+    html += '<span class="remove-event">';
+    html += '<i class="fa fa-times" aria-hidden="true"></i>';
+    html += '</span>';
     html += '</li>';
     return html;
   }
@@ -120,8 +139,12 @@ $( document ).ready(function() {
     var last_date = lastDate(year, month);
     var events = [];
 
-    calendarTitle(month, year);
-    calendar(day_index, last_date, month, events);
+    /***************************
+     * EVENTS
+     ***************************/
+
+    $calendarTitle(month, year);
+    calendar(day_index, last_date, year, month);
 
     $('#next-month').on('click', function(e) {
       e.preventDefault();
@@ -129,8 +152,8 @@ $( document ).ready(function() {
         month ++;
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
-        calendarTitle(month, year);
-        calendar(day_index, last_date, month, events);
+        $calendarTitle(month, year);
+        calendar(day_index, last_date, year, month);
       }
     });
 
@@ -140,8 +163,8 @@ $( document ).ready(function() {
         month --;
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
-        calendarTitle(month, year);
-        calendar(day_index, last_date, month, events);
+        $calendarTitle(month, year);
+        calendar(day_index, last_date, year, month);
       }
     });
 
@@ -156,17 +179,16 @@ $( document ).ready(function() {
 
       $('#myModal').modal('show');
 
+      $('.modal-title').html("Events for " + GetMonthName(month) + " " + date);
       $createEvent.find('input[name="month"]').val(month);
       $createEvent.find('input[name="date"]').val(date);
 
       $eventList.html('');
       for (var i = 0; i < current_events.length; i++) {
-        html = $eventLine(current_events[i].title, current_events[i].type);
+        html = $eventLine(current_events[i].title, current_events[i].type, current_events[i].id);
         $eventList.append(html);
       }
     });
-
-
 
     $('#create-event').on('submit', function(e) {
       e.preventDefault();
@@ -177,9 +199,9 @@ $( document ).ready(function() {
       var type = $this.find('select[name="type"]').val();
       var thisEventNum = $('.calendar-column[data-date="' + date + '"]').find('.event-num');
       var currentNum = parseInt(thisEventNum.text()) || 0;
-
+      var id = idGenerator();
       var formData = {
-        id: idGenerator(),
+        id: id,
         month: parseInt(month),
         date: parseInt(date),
         type: type,
@@ -188,12 +210,24 @@ $( document ).ready(function() {
 
       events.push(formData); // add data to array
       $this.find('input[name="title"]').val(''); // clear form
-      html = $eventLine(title, type);
+      html = $eventLine(title, type, id);
       $('.event-list').append(html);
 
-      // Update calendar to show event count
       thisEventNum.html('');
       thisEventNum.html('<span>' + (currentNum + 1) + pluralize(currentNum + 1, " event", " events") +'</span>');
+    });
+
+    // Remove Event
+    $('.event-list').on('click', '.remove-event',function() {
+        var $this = $(this);
+        var parent = $this.parent();
+        var id = parent.data('id');
+
+        parent.fadeOut('300', function() {
+          $(this).remove();
+        });
+
+        events = _.without(events, _.findWhere(events, {id: id})); // remove event
     });
 
 });

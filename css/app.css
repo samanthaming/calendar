@@ -4,7 +4,6 @@
 /* --------------------------------------
    BASE
    -------------------------------------- */
-
 body {
     font-family: 'Open Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -27,6 +26,7 @@ img {
  }
  .modal-title{
    font-size: 20px;
+   text-align: center;
  }
 .modal-body{
   max-height: 50vh;
@@ -116,7 +116,7 @@ label{
 
 .event-num{
   text-align: center;
-  margin-top: 8%;
+  margin-top: 6%;
   color:white;
 }
 .event-num span{
@@ -140,7 +140,7 @@ label{
   background-color: #eef8f7;
 }
 .event-type{
-  font-size: 14px;
+  font-size: 13px;
   padding: 1px 9px;
   border-radius: 20px;
   margin-right: 15px;

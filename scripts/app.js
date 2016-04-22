@@ -158,7 +158,6 @@ $( document ).ready(function() {
 
   function $eventLine(title, type, id){
     html = '<li data-id="'+ id +'">';
-
     switch(type){
       case "Appointment":
         html += '<span class="event-type event-type-appt">';
@@ -172,7 +171,7 @@ $( document ).ready(function() {
     html += type + '</span>';
     html += title;
     html += '<span class="remove-event">';
-    html += '<i class="fa fa-times" aria-hidden="true"></i>';
+    html += '<i class="fa fa-trash-o" aria-hidden="true"></i>';
     html += '</span>';
     html += '</li>';
     return html;
@@ -200,6 +199,7 @@ $( document ).ready(function() {
   }
 
   function addWeather(){
+    // Loop through the weather api
     $.getJSON( "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D9807%20&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys", function( data ) {
       var forecasts = data.query.results.channel.item.forecast;
       var forecastDate, forecastMonth, weatherIcon;
@@ -209,7 +209,6 @@ $( document ).ready(function() {
         forecastMonth = getMonthNumber(forecasts[i].date.slice(3,6));
 
         weatherIcon = weatherCodeIcon(forecasts[i].code);
-
 
         $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"]').find('.weather').html(forecasts[i].text +'<span>'+ weatherIcon + '</span>');
       }
@@ -280,8 +279,9 @@ $( document ).ready(function() {
 
       $eventList.html('');
       for (var i = 0; i < current_events.length; i++) {
+        console.log(i);
         html = $eventLine(current_events[i].title, current_events[i].type, current_events[i].id);
-        $eventList.append(html);
+        $eventList.prepend(html); // descending order, newest at top
       }
 
     });
@@ -326,9 +326,4 @@ $( document ).ready(function() {
 
         addEventCount();
     });
-
-
-
-
-
 });

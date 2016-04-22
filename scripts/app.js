@@ -70,20 +70,21 @@ $( document ).ready(function() {
     return new Date(year, month + 1, 0).getDate();
   }
 
-  function $thisCalendarColumn(calendarContent, counter, month, events){
+  function $thisCalendarColumn(calendarContent, counter, month, events, year){
     var d = new Date();
     var currentDate = d.getDate();
-    var currentMonth = new Date().getMonth();
+    var currentMonth = d.getMonth();
+    var currentYear = d.getFullYear();
     var html = "";
 
     var count = eventCount(events,month, counter);
 
     html += '<div class="calendar-column';
-    if (counter == currentDate && currentMonth == month) {
+    if (counter == currentDate && currentMonth == month && currentYear == year) {
       html += ' current';
     }
     html += '"';
-    html += 'data-date="'+ counter +'" data-month="'+ month+'">';
+    html += 'data-year="'+ year +'" data-date="'+ counter +'" data-month="'+ month+'">';
     html += '<span>'+ counter +'</span>';
     html += '<div class="event-num">';
 
@@ -97,8 +98,8 @@ $( document ).ready(function() {
     return calendarContent.append(html);
   }
 
-  function $notThisCalendarColumn(calendarContent, counter, month){
-    return calendarContent.append('<div class="calendar-column calendar-column-muted" data-date="'+ counter +'" data-month="'+ month +'">' +
+  function $notThisCalendarColumn(calendarContent, counter, month, year){
+    return calendarContent.append('<div class="calendar-column calendar-column-muted" data-year="'+ year +'" data-date="'+ counter +'" data-month="'+ month +'">' +
       '<span>'+ counter +'</span>' +
       '<div class="event-num"></div>' +
       '<div class="weather"></div>' +
@@ -131,9 +132,9 @@ $( document ).ready(function() {
 
       if(ir == day_index || counter > 0){
         counter++;
-        $thisCalendarColumn($calendarContent, counter, month, events);
+        $thisCalendarColumn($calendarContent, counter, month, events, year);
       }else{
-        $notThisCalendarColumn($calendarContent, prevCounter, month - 1);
+        $notThisCalendarColumn($calendarContent, prevCounter, month - 1, year);
         prevCounter++;
       }
     }
@@ -143,9 +144,9 @@ $( document ).ready(function() {
       for(var nr = 0; nr < 7; nr++ ){
         counter++;
         if(counter <= last_date){
-          $thisCalendarColumn($calendarContent, counter, month, events);
+          $thisCalendarColumn($calendarContent, counter, month, events, year);
         }else{
-          $notThisCalendarColumn($calendarContent, aheadCounter, month + 1);
+          $notThisCalendarColumn($calendarContent, aheadCounter, month + 1, year);
           aheadCounter++;
         }
       }
@@ -177,8 +178,8 @@ $( document ).ready(function() {
     return html;
   }
 
-  function eventCount(events, month, date){
-    return _.where(events, {month: parseInt(month), date: parseInt(date)}).length;
+  function eventCount(events, month, date, year){
+    return _.where(events, {month: parseInt(month), date: parseInt(date), year: parseInt(year)}).length;
   }
 
   function addEventCount(){
@@ -188,7 +189,8 @@ $( document ).ready(function() {
       $this = $(this);
       month = $this.data('month');
       date  = $this.data('date');
-      count = eventCount(events, month, date);
+      year  = $this.data('year');
+      count = eventCount(events, month, date, year);
       if (count > 0) {
         $this.find('.event-num').html('<span>'+
           count +
@@ -202,18 +204,28 @@ $( document ).ready(function() {
     // Loop through the weather api
     $.getJSON( "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%3D9807%20&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys", function( data ) {
       var forecasts = data.query.results.channel.item.forecast;
-      var forecastDate, forecastMonth, weatherIcon;
+      var forecastDate, forecastMonth, forecastYear, weatherIcon;
 
       for (var i = 0; i < forecasts.length; i++) {
         forecastDate = parseInt(forecasts[i].date.slice(0,2), 10);
         forecastMonth = getMonthNumber(forecasts[i].date.slice(3,6));
-
+        forecastYear = parseInt(forecasts[i].date.slice(6,11));
         weatherIcon = weatherCodeIcon(forecasts[i].code);
 
-        $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"]').find('.weather').html(forecasts[i].text +'<span>'+ weatherIcon + '</span>');
+        $('[data-date="'+forecastDate+'"][data-month="'+forecastMonth+'"][data-year="'+forecastYear+'"]').find('.weather').html(forecasts[i].text +'<span>'+ weatherIcon + '</span>');
       }
 
     });
+  }
+
+  function loadCalendarHeader(month, year){
+    day_index = dayIndex(month);
+    last_date = lastDate(year, month);
+    $calendarTitle(month, year);
+    calendar(day_index, last_date, year, month);
+
+    addEventCount();
+    addWeather();
   }
   /***************************
    * VARIABLES
@@ -237,28 +249,28 @@ $( document ).ready(function() {
 
     $('#next-month').on('click', function(e) {
       e.preventDefault();
+
       if(month < 11){
         month ++;
-        day_index = dayIndex(month);
-        last_date = lastDate(year, month);
-        $calendarTitle(month, year);
-        calendar(day_index, last_date, year, month);
+      }else{
+        month = 0;
+        year ++;
       }
-      addEventCount();
-      addWeather();
+
+      loadCalendarHeader(month, year);
     });
 
     $('#prev-month').on('click', function(e) {
       e.preventDefault();
+
       if(month > 0){
         month --;
-        day_index = dayIndex(month);
-        last_date = lastDate(year, month);
-        $calendarTitle(month, year);
-        calendar(day_index, last_date, year, month);
+      }else{
+        month = 11;
+        year --;
       }
-      addEventCount();
-      addWeather();
+
+      loadCalendarHeader(month, year);
     });
 
 
@@ -268,18 +280,19 @@ $( document ).ready(function() {
       var $eventList = $('.event-list');
       var date = $this.data('date');
       var month = $this.data("month");
-      var current_events = _.where(events, {month: month, date: date});
+      var year = $this.data("year");
+      var current_events = _.where(events, {month: month, date: date, year: year});
       var html;
 
       $('#myModal').modal('show');
 
-      $('.modal-title').html("Events for " + GetMonthName(month) + " " + date);
+      $('.modal-title').html("Events for " + GetMonthName(month) + " " + date + ", " + year);
       $createEvent.find('input[name="month"]').val(month);
       $createEvent.find('input[name="date"]').val(date);
+      $createEvent.find('input[name="year"]').val(year);
 
       $eventList.html('');
       for (var i = 0; i < current_events.length; i++) {
-        console.log(i);
         html = $eventLine(current_events[i].title, current_events[i].type, current_events[i].id);
         $eventList.prepend(html); // descending order, newest at top
       }
@@ -292,6 +305,7 @@ $( document ).ready(function() {
       var title = $this.find('input[name="title"]').val();
       var date = $this.find('input[name="date"]').val();
       var month = $this.find('input[name="month"]').val();
+      var year = $this.find('input[name="year"]').val();
       var type = $this.find('select[name="type"]').val();
       var thisEventNum = $('.calendar-column[data-date="' + date + '"]').find('.event-num');
       var currentNum = parseInt(thisEventNum.text()) || 0;
@@ -300,6 +314,7 @@ $( document ).ready(function() {
         id: id,
         month: parseInt(month),
         date: parseInt(date),
+        year: parseInt(year),
         type: type,
         title: title
       };

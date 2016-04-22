@@ -21,7 +21,23 @@ $( document ).ready(function() {
     return new Date(year, month + 1, 0).getDate();
   }
 
-  function calendar(day_index, last_date){
+  function $thisCalendarColumn(calendarContent, counter, thisMonth){
+    var d = new Date();
+    var currentDate = d.getDate();
+    var currentMonth = new Date().getMonth();
+
+    if (counter == currentDate && currentMonth == thisMonth) {
+      return calendarContent.append('<div class="calendar-column current">' + counter + "</div>");
+    } else {
+      return calendarContent.append('<div class="calendar-column">' + counter + "</div>");
+    }
+  }
+
+  function $notThisCalendarColumn(calendarContent, counter){
+    return calendarContent.append('<div class="calendar-column">' + '<span class="invisible">0</span>' + "</div>");
+  }
+
+  function calendar(day_index, last_date, thisMonth){
     var counter = 0;
     var $calendarContent = $('.calendar-content');
 
@@ -34,10 +50,9 @@ $( document ).ready(function() {
 
       if(ir == day_index || counter > 0){
         counter++;
-        $calendarContent.append('<div class="calendar-column">' + counter + "</div>");
-
+        $thisCalendarColumn($calendarContent, counter, thisMonth);
       }else{
-        $calendarContent.append('<div class="calendar-column">' + '<span class="invisible">0</span>' + "</div>");
+        $notThisCalendarColumn($calendarContent, counter);
       }
     }
     $calendarContent.append('</div>');
@@ -48,9 +63,9 @@ $( document ).ready(function() {
       for(var nr = 0; nr < 7; nr++ ){
         counter++;
         if(counter <= last_date){
-          $calendarContent.append('<div class="calendar-column">' + counter + "</div>");
+          $thisCalendarColumn($calendarContent, counter, thisMonth);
         }else{
-          $calendarContent.append('<div class="calendar-column">' + '<span class="invisible">0</span>' + "</div>");
+          $notThisCalendarColumn($calendarContent, counter);
         }
       }
       $calendarContent.append('</div>');
@@ -73,7 +88,7 @@ $( document ).ready(function() {
     var last_date = lastDate(year, month);
 
     calendarTitle(month, year);
-    calendar(day_index, last_date);
+    calendar(day_index, last_date, month);
 
     $('#next-month').on('click', function(e) {
       e.preventDefault();
@@ -82,7 +97,7 @@ $( document ).ready(function() {
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
         calendarTitle(month, year);
-        calendar(day_index, last_date);
+        calendar(day_index, last_date, month);
       }
     });
 
@@ -93,7 +108,7 @@ $( document ).ready(function() {
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
         calendarTitle(month, year);
-        calendar(day_index, last_date);
+        calendar(day_index, last_date, month);
       }
     });
 

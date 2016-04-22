@@ -24,8 +24,11 @@
   border:1px solid teal;
   text-align: right;
   height:70px;
+  padding:5px;
 }
-
+.calendar-column.current{
+  background-color: red;
+}
 .calendar-header h3{
   text-align: center;
 }

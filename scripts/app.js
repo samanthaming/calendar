@@ -91,6 +91,23 @@ $( document ).ready(function() {
     $('.calendar-header-title').html(GetMonthName(month) + " " + year);
   }
 
+  function $eventLine(title, type){
+    html = '<li>';
+    html += title;
+    switch(type){
+      case "Appointments":
+        html += '<span class="event-type event-type-appt">';
+        break;
+      case "Tasks":
+        html += '<span class="event-type event-type-task">';
+        break;
+      default:
+        html += '<span class="event-type event-type-meet">';
+    }
+    html += type + '</span>';
+    html += '</li>';
+    return html;
+  }
   /***************************
    * VARIABLES
    ***************************/
@@ -135,6 +152,7 @@ $( document ).ready(function() {
       var date = $this.data('date');
       var month = $this.data("month");
       var current_events = _.where(events, {month: month, date: date});
+      var html;
 
       $('#myModal').modal('show');
 
@@ -143,7 +161,8 @@ $( document ).ready(function() {
 
       $eventList.html('');
       for (var i = 0; i < current_events.length; i++) {
-        $eventList.append('<li>'+current_events[i].title+'</li>');
+        html = $eventLine(current_events[i].title, current_events[i].type);
+        $eventList.append(html);
       }
     });
 
@@ -169,10 +188,12 @@ $( document ).ready(function() {
 
       events.push(formData); // add data to array
       $this.find('input[name="title"]').val(''); // clear form
-      $('.event-list').append('<li>'+title+'</li>');
+      html = $eventLine(title, type);
+      $('.event-list').append(html);
 
       // Update calendar to show event count
       thisEventNum.html('');
       thisEventNum.html('<span>' + (currentNum + 1) + pluralize(currentNum + 1, " event", " events") +'</span>');
     });
+
 });

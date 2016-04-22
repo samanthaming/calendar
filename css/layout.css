@@ -15,7 +15,7 @@
 .calendar-column{
   width: calc((100% / 7));
   float: left;
-  border:1px solid teal;
+  border:1px solid #379392;
   text-align: right;
   height:90px;
   padding:5px;
@@ -38,11 +38,31 @@
   font-style: italic;
   /*radius: 50%;*/
 }
+
 .event-num span{
   background-color: #FFBC42;
   padding:5px 15px;
   border-radius: 20px;
 }
-/* --------------------------------------
-   Media Queries
-   -------------------------------------- */
+
+.event-list li{
+  font-size: 16px;
+  margin-bottom: 18px;
+}
+.event-type{
+  font-size: 14px;
+  padding: 1px 9px;
+  border-radius: 20px;
+  margin-left: 8px;
+  color: white;
+}
+
+.event-type-meet{
+  background-color: #7200da;
+}
+.event-type-appt{
+  background-color: #f9320c;
+}
+.event-type-task{
+  background-color: #00b9f1;
+}

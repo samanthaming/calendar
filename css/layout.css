@@ -4,35 +4,39 @@
 
 
 /* --------------------------------------
-   CONTENT PAGE
+   CALENDAR
    -------------------------------------- */
 
-.calendar-row{
-
-}
-
-.calendar-row:after {
-   content: ".";
-   visibility: hidden;
-   display: block;
-   height: 0;
-   clear: both;
+.calendar-content:after {
+  content: '';
+  display: block;
+  clear: both;
 }
 .calendar-column{
-  width: 14%;
+  width: calc((100% / 7));
   float: left;
   border:1px solid teal;
   text-align: right;
   height:70px;
   padding:5px;
 }
+
 .calendar-column.current{
-  background-color: red;
+  background-color: tomato;
 }
 .calendar-header h3{
   text-align: center;
 }
 
+.calendar-content .calendar-column:hover{
+  background-color: whiteSmoke;
+  cursor:pointer;
+}
+
+.event-num{
+  text-align: center;
+  font-style: italic;
+}
 /* --------------------------------------
    Media Queries
    -------------------------------------- */

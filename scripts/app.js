@@ -1,10 +1,15 @@
-
-
 $( document ).ready(function() {
 
   /***************************
    * FUNCTIONS
    ***************************/
+
+  function idGenerator() {
+    // Math.random should be unique because of its seeding algorithm.
+    // Convert it to base 36 (numbers + letters), and grab the first 9 characters
+    // after the decimal.
+    return '_' + Math.random().toString(36).substr(2, 9);
+  }
 
   function GetMonthName(monthNumber) {
     var months = ['January', 'February', 'March', 'April', 'May', 'June',
@@ -27,9 +32,15 @@ $( document ).ready(function() {
     var currentMonth = new Date().getMonth();
 
     if (counter == currentDate && currentMonth == thisMonth) {
-      return calendarContent.append('<div class="calendar-column current">' + counter + "</div>");
+      return calendarContent.append('<div class="calendar-column current" data-month="' +
+        thisMonth + '">' +
+        counter +
+        "</div>");
     } else {
-      return calendarContent.append('<div class="calendar-column">' + counter + "</div>");
+      return calendarContent.append('<div class="calendar-column" data-date="'+counter+'" data-month="'+ thisMonth+'">' +
+        '<span>'+ counter +'</span>' +
+        '<div class="event-num"></div>' +
+        "</div>");
     }
   }
 
@@ -45,7 +56,6 @@ $( document ).ready(function() {
     $calendarContent.html("");
 
     // First row
-    $calendarContent.append('<div class="calendar-row">');
     for(var ir = 0; ir < 7; ir++ ){
 
       if(ir == day_index || counter > 0){
@@ -55,11 +65,9 @@ $( document ).ready(function() {
         $notThisCalendarColumn($calendarContent, counter);
       }
     }
-    $calendarContent.append('</div>');
 
     // Rest of the row
     while (counter < last_date) {
-      $calendarContent.append('<div class="calendar-row">');
       for(var nr = 0; nr < 7; nr++ ){
         counter++;
         if(counter <= last_date){
@@ -68,7 +76,6 @@ $( document ).ready(function() {
           $notThisCalendarColumn($calendarContent, counter);
         }
       }
-      $calendarContent.append('</div>');
     }
   }
 
@@ -86,9 +93,10 @@ $( document ).ready(function() {
     var month = date.getMonth();
     var day_index = dayIndex(month);
     var last_date = lastDate(year, month);
+    var events = [];
 
     calendarTitle(month, year);
-    calendar(day_index, last_date, month);
+    calendar(day_index, last_date, month, events);
 
     $('#next-month').on('click', function(e) {
       e.preventDefault();
@@ -97,7 +105,7 @@ $( document ).ready(function() {
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
         calendarTitle(month, year);
-        calendar(day_index, last_date, month);
+        calendar(day_index, last_date, month, events);
       }
     });
 
@@ -108,8 +116,50 @@ $( document ).ready(function() {
         day_index = dayIndex(month);
         last_date = lastDate(year, month);
         calendarTitle(month, year);
-        calendar(day_index, last_date, month);
+        calendar(day_index, last_date, month, events);
       }
     });
 
+    $('.calendar-content').on('click', '.calendar-column', function(){
+      var $this = $(this);
+      var $createEvent = $('#create-event');
+      var $eventList = $('.event-list');
+      var date = $this.data('date');
+      var month = $this.data("month");
+      var current_events = _.where(events, {month: month, date: date});
+
+      $('#myModal').modal('show');
+
+      $createEvent.find('input[name="month"]').val(month);
+      $createEvent.find('input[name="date"]').val(date);
+
+      $eventList.html('');
+      for (var i = 0; i < current_events.length; i++) {
+        $eventList.append('<li>'+current_events[i].title+'</li>');
+      }
+    });
+
+
+
+    $('#create-event').on('submit', function(e) {
+      e.preventDefault();
+      $this = $(this);
+      var title = $this.find('input[name="title"]').val();
+      var date = $this.find('input[name="date"]').val();
+      var month = $this.find('input[name="month"]').val();
+      var type = $this.find('select[name="type"]').val();
+
+      var formData = {
+        id: idGenerator(),
+        month: parseInt(month),
+        date: parseInt(date),
+        type: type,
+        title: title
+      };
+
+      events.push(formData);
+      $this.find('input[name="title"]').val('');
+      $('.event-list').append('<li>'+title+'</li>');
+
+    });
 });
